@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot</title>
+  <style>
+    body { font-family: Arial; background: #f1f1f1; display: flex; justify-content: center; padding: 50px; }
+    #chat-container { width: 400px; background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    #messages { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+    .message { margin: 5px 0; }
+    .user { color: blue; }
+    .bot { color: green; }
+    input { width: 80%; padding: 8px; }
+    button { padding: 8px; }
+  </style>
+</head>
+<body>
+
+<div id="chat-container">
+  <div id="messages"></div>
+  <input type="text" id="userMessage" placeholder="Type a message...">
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+async function sendMessage() {
+  const input = document.getElementById("userMessage");
+  const message = input.value;
+  if (!message) return;
+
+  addMessage("user", message);
+  input.value = "";
+
+  try {
+    const res = await fetch("http://localhost:3000/chat", { // replace with your backend URL when hosted
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message })
+    });
+
+    const data = await res.json();
+    addMessage("bot", data.reply);
+  } catch (err) {
+    addMessage("bot", "Error connecting to server.");
+  }
+}
+
+function addMessage(sender, text) {
+  const messagesDiv = document.getElementById("messages");
+  const msg = document.createElement("div");
+  msg.className = `message ${sender}`;
+  msg.textContent = `${sender}: ${text}`;
+  messagesDiv.appendChild(msg);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+</script>
+
+</body>
+</html>
